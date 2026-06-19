@@ -4,6 +4,9 @@
 bin/
 obj/
 
+# Environment variable secrets - never commit this file
+.env
+
 # Visual Studio / Rider
 .vs/
 .idea/

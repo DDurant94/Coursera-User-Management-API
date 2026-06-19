@@ -1,8 +1,240 @@
 @UserManagementAPI_HostAddress = http://localhost:5075
+# Set this to match your AUTH_TOKEN environment variable
+@token = your-secret-token
+
+# =============================================================================
+# MIDDLEWARE TESTS
+# =============================================================================
+
+### [Auth] No Authorization header (expect 401 - console: [AUTH] missing header)
+GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+
+###
+
+### [Auth] Malformed header - missing "Bearer" prefix (expect 401 - console: [AUTH] malformed)
+GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+Authorization: {{token}}
+
+###
+
+### [Auth] Wrong token value (expect 401 - console: [AUTH] invalid token)
+GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+Authorization: Bearer wrong-token-value
+
+###
+
+### [Auth] Valid token (expect 200 - console: [LOG] Incoming >> GET /api/users)
+GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### [Error] Trigger unhandled exception (expect 500 {"error":"Internal server error."} - console: [ERROR])
+### Requires the server to be running in Development mode (dotnet run)
+GET {{UserManagementAPI_HostAddress}}/api/diagnostic/error
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+# =============================================================================
+# CRUD TESTS  (all require a valid token)
+# =============================================================================
 
 ### Get all users (expect 200 OK with empty array on first run)
 GET {{UserManagementAPI_HostAddress}}/api/users
 Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Get all users - explicit defaults (expect same as above)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=20
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Add first user
+POST {{UserManagementAPI_HostAddress}}/api/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userName": "jdoe",
+  "email": "jdoe@example.com"
+}
+
+###
+
+### Add second user
+POST {{UserManagementAPI_HostAddress}}/api/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userName": "jsmith",
+  "email": "jsmith@example.com"
+}
+
+###
+
+### Get all users (expect 200 OK with both users)
+GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Pagination - get page 1 with pageSize 1 (expect only first user)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Pagination - get page 2 with pageSize 1 (expect only second user)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=2&pageSize=1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Pagination - page beyond results (expect 200 OK with empty array)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=999&pageSize=20
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Pagination - invalid page 0 (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=0&pageSize=20
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Pagination - invalid pageSize 0 (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=0
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Pagination - pageSize exceeds limit of 100 (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=101
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Get user by ID 1 (expect 200 OK)
+GET {{UserManagementAPI_HostAddress}}/api/users/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Get user by ID that does not exist (expect 404 Not Found)
+GET {{UserManagementAPI_HostAddress}}/api/users/999
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Get user with invalid ID (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users/-1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Update user with ID 1 (expect 204 No Content)
+PUT {{UserManagementAPI_HostAddress}}/api/users/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userName": "jdoe_updated",
+  "email": "jdoe_updated@example.com"
+}
+
+###
+
+### Verify update - get user ID 1 again (expect updated values)
+GET {{UserManagementAPI_HostAddress}}/api/users/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Update user that does not exist (expect 404 Not Found)
+PUT {{UserManagementAPI_HostAddress}}/api/users/999
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userName": "ghost",
+  "email": "ghost@example.com"
+}
+
+###
+
+### Update user with missing UserName (expect 400 Bad Request)
+PUT {{UserManagementAPI_HostAddress}}/api/users/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userName": "",
+  "email": "jdoe@example.com"
+}
+
+###
+
+### Add user with missing Email (expect 400 Bad Request)
+POST {{UserManagementAPI_HostAddress}}/api/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userName": "nodEmail",
+  "email": ""
+}
+
+###
+
+### Delete user with ID 2 (expect 204 No Content)
+DELETE {{UserManagementAPI_HostAddress}}/api/users/2
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Verify delete - get user ID 2 (expect 404 Not Found)
+GET {{UserManagementAPI_HostAddress}}/api/users/2
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Delete user that does not exist (expect 404 Not Found)
+DELETE {{UserManagementAPI_HostAddress}}/api/users/999
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+### Delete user with invalid ID (expect 400 Bad Request)
+DELETE {{UserManagementAPI_HostAddress}}/api/users/0
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
 
 ###
 
