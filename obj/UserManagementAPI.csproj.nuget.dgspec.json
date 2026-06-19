@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj": {}
+    "C:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj": {}
   },
   "projects": {
-    "c:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj": {
+    "C:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj",
+        "projectUniqueName": "C:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj",
         "projectName": "UserManagementAPI",
-        "projectPath": "c:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj",
+        "projectPath": "C:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\UserManagementAPI.csproj",
         "packagesPath": "C:\\Users\\ddura\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\obj\\",
+        "outputPath": "C:\\Users\\ddura\\OneDrive\\Documents\\software_dev\\coursera\\module_five\\data_trans\\UserManagementAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ddura\\AppData\\Roaming\\NuGet\\NuGet.Config"
