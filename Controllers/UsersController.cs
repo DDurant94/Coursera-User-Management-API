@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
 using UserManagementAPI.Models;
 
@@ -7,8 +8,8 @@ namespace UserManagementAPI.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private static readonly List<User> _users = new();
-    private static int _nextId = 1;
+    private static readonly ConcurrentDictionary<int, User> _users = new();
+    private static int _nextId = 0;
 
     // GET api/users
     [HttpGet]
@@ -16,7 +17,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            return Ok(_users);
+            return Ok(_users.Values);
         }
         catch (Exception ex)
         {
@@ -37,8 +38,7 @@ public class UsersController : ControllerBase
             if (id <= 0)
                 return BadRequest($"Invalid ID '{id}'. ID must be a positive integer.");
 
-            var user = _users.FirstOrDefault(u => u.Id == id);
-            if (user is null)
+            if (!_users.TryGetValue(id, out var user))
                 return NotFound($"User with ID {id} was not found.");
 
             return Ok(user);
@@ -65,8 +65,8 @@ public class UsersController : ControllerBase
             if (string.IsNullOrWhiteSpace(user.Email))
                 return BadRequest("Email is required and cannot be empty.");
 
-            user.Id = _nextId++;
-            _users.Add(user);
+            user.Id = Interlocked.Increment(ref _nextId);
+            _users[user.Id] = user;
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
         catch (Exception ex)
@@ -94,8 +94,7 @@ public class UsersController : ControllerBase
             if (string.IsNullOrWhiteSpace(updatedUser.Email))
                 return BadRequest("Email is required and cannot be empty.");
 
-            var user = _users.FirstOrDefault(u => u.Id == id);
-            if (user is null)
+            if (!_users.TryGetValue(id, out var user))
                 return NotFound($"User with ID {id} was not found.");
 
             user.UserName = updatedUser.UserName;
@@ -122,11 +121,9 @@ public class UsersController : ControllerBase
             if (id <= 0)
                 return BadRequest($"Invalid ID '{id}'. ID must be a positive integer.");
 
-            var user = _users.FirstOrDefault(u => u.Id == id);
-            if (user is null)
+            if (!_users.TryRemove(id, out _))
                 return NotFound($"User with ID {id} was not found.");
 
-            _users.Remove(user);
             return NoContent();
         }
         catch (Exception ex)

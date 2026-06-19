@@ -1,6 +1,127 @@
 @UserManagementAPI_HostAddress = http://localhost:5075
 
-GET {{UserManagementAPI_HostAddress}}/weatherforecast/
+### Get all users (expect 200 OK with empty array on first run)
+GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+
+###
+
+### Add first user
+POST {{UserManagementAPI_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "userName": "jdoe",
+  "email": "jdoe@example.com"
+}
+
+###
+
+### Add second user
+POST {{UserManagementAPI_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "userName": "jsmith",
+  "email": "jsmith@example.com"
+}
+
+###
+
+### Get all users (expect 200 OK with both users)
+GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+
+###
+
+### Get user by ID 1 (expect 200 OK)
+GET {{UserManagementAPI_HostAddress}}/api/users/1
+Accept: application/json
+
+###
+
+### Get user by ID that does not exist (expect 404 Not Found)
+GET {{UserManagementAPI_HostAddress}}/api/users/999
+Accept: application/json
+
+###
+
+### Get user with invalid ID (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users/-1
+Accept: application/json
+
+###
+
+### Update user with ID 1 (expect 204 No Content)
+PUT {{UserManagementAPI_HostAddress}}/api/users/1
+Content-Type: application/json
+
+{
+  "userName": "jdoe_updated",
+  "email": "jdoe_updated@example.com"
+}
+
+###
+
+### Verify update - get user ID 1 again (expect updated values)
+GET {{UserManagementAPI_HostAddress}}/api/users/1
+Accept: application/json
+
+###
+
+### Update user that does not exist (expect 404 Not Found)
+PUT {{UserManagementAPI_HostAddress}}/api/users/999
+Content-Type: application/json
+
+{
+  "userName": "ghost",
+  "email": "ghost@example.com"
+}
+
+###
+
+### Update user with missing UserName (expect 400 Bad Request)
+PUT {{UserManagementAPI_HostAddress}}/api/users/1
+Content-Type: application/json
+
+{
+  "userName": "",
+  "email": "jdoe@example.com"
+}
+
+###
+
+### Add user with missing Email (expect 400 Bad Request)
+POST {{UserManagementAPI_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "userName": "nodEmail",
+  "email": ""
+}
+
+###
+
+### Delete user with ID 2 (expect 204 No Content)
+DELETE {{UserManagementAPI_HostAddress}}/api/users/2
+Accept: application/json
+
+###
+
+### Verify delete - get user ID 2 (expect 404 Not Found)
+GET {{UserManagementAPI_HostAddress}}/api/users/2
+Accept: application/json
+
+###
+
+### Delete user that does not exist (expect 404 Not Found)
+DELETE {{UserManagementAPI_HostAddress}}/api/users/999
+Accept: application/json
+
+###
+
+### Delete user with invalid ID (expect 400 Bad Request)
+DELETE {{UserManagementAPI_HostAddress}}/api/users/0
 Accept: application/json
 
 ###
