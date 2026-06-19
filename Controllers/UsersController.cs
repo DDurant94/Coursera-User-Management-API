@@ -1,6 +1,6 @@
-using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
 using UserManagementAPI.Models;
+using UserManagementAPI.Services;
 
 namespace UserManagementAPI.Controllers;
 
@@ -8,16 +8,31 @@ namespace UserManagementAPI.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private static readonly ConcurrentDictionary<int, User> _users = new();
-    private static int _nextId = 0;
+    private readonly IUserStore _store;
 
-    // GET api/users
+    public UsersController(IUserStore store)
+    {
+        _store = store;
+    }
+
+    // GET api/users?page=1&pageSize=20
     [HttpGet]
-    public ActionResult<IEnumerable<User>> GetAllUsers()
+    public ActionResult<IEnumerable<User>> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         try
         {
-            return Ok(_users.Values);
+            if (page <= 0)
+                return BadRequest("Page must be a positive integer.");
+
+            if (pageSize <= 0 || pageSize > 100)
+                return BadRequest("PageSize must be between 1 and 100.");
+
+            var pagedUsers = _store.GetAll()
+                .OrderBy(u => u.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+
+            return Ok(pagedUsers);
         }
         catch (Exception ex)
         {
@@ -38,7 +53,7 @@ public class UsersController : ControllerBase
             if (id <= 0)
                 return BadRequest($"Invalid ID '{id}'. ID must be a positive integer.");
 
-            if (!_users.TryGetValue(id, out var user))
+            if (!_store.TryGetById(id, out var user))
                 return NotFound($"User with ID {id} was not found.");
 
             return Ok(user);
@@ -59,15 +74,8 @@ public class UsersController : ControllerBase
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(user.UserName))
-                return BadRequest("UserName is required and cannot be empty.");
-
-            if (string.IsNullOrWhiteSpace(user.Email))
-                return BadRequest("Email is required and cannot be empty.");
-
-            user.Id = Interlocked.Increment(ref _nextId);
-            _users[user.Id] = user;
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            var created = _store.Add(user);
+            return CreatedAtAction(nameof(GetUserById), new { id = created.Id }, created);
         }
         catch (Exception ex)
         {
@@ -88,17 +96,8 @@ public class UsersController : ControllerBase
             if (id <= 0)
                 return BadRequest($"Invalid ID '{id}'. ID must be a positive integer.");
 
-            if (string.IsNullOrWhiteSpace(updatedUser.UserName))
-                return BadRequest("UserName is required and cannot be empty.");
-
-            if (string.IsNullOrWhiteSpace(updatedUser.Email))
-                return BadRequest("Email is required and cannot be empty.");
-
-            if (!_users.TryGetValue(id, out var user))
+            if (!_store.TryUpdate(id, updatedUser))
                 return NotFound($"User with ID {id} was not found.");
-
-            user.UserName = updatedUser.UserName;
-            user.Email = updatedUser.Email;
 
             return NoContent();
         }
@@ -121,7 +120,7 @@ public class UsersController : ControllerBase
             if (id <= 0)
                 return BadRequest($"Invalid ID '{id}'. ID must be a positive integer.");
 
-            if (!_users.TryRemove(id, out _))
+            if (!_store.TryRemove(id))
                 return NotFound($"User with ID {id} was not found.");
 
             return NoContent();
