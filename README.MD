@@ -1,5 +1,7 @@
 # User Management API
 
+**[User Management API – Documentation](https://ddurant94.github.io/Coursera-User-Management-API/)**
+
 A RESTful CRUD API built with **ASP.NET Core (.NET 10)** for managing users within a company.  
 Features: in-memory storage, input validation, pagination, thread-safe concurrency, custom middleware, Bearer token authentication, and a full unit test suite (43 tests).
 
