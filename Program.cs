@@ -14,4 +14,4 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
