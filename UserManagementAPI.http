@@ -6,6 +6,12 @@ Accept: application/json
 
 ###
 
+### Get all users - explicit defaults (expect same as above)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=20
+Accept: application/json
+
+###
+
 ### Add first user
 POST {{UserManagementAPI_HostAddress}}/api/users
 Content-Type: application/json
@@ -30,6 +36,42 @@ Content-Type: application/json
 
 ### Get all users (expect 200 OK with both users)
 GET {{UserManagementAPI_HostAddress}}/api/users
+Accept: application/json
+
+###
+
+### Pagination - get page 1 with pageSize 1 (expect only first user)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=1
+Accept: application/json
+
+###
+
+### Pagination - get page 2 with pageSize 1 (expect only second user)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=2&pageSize=1
+Accept: application/json
+
+###
+
+### Pagination - page beyond results (expect 200 OK with empty array)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=999&pageSize=20
+Accept: application/json
+
+###
+
+### Pagination - invalid page 0 (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=0&pageSize=20
+Accept: application/json
+
+###
+
+### Pagination - invalid pageSize 0 (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=0
+Accept: application/json
+
+###
+
+### Pagination - pageSize exceeds limit of 100 (expect 400 Bad Request)
+GET {{UserManagementAPI_HostAddress}}/api/users?page=1&pageSize=101
 Accept: application/json
 
 ###
