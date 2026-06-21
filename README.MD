@@ -1,5 +1,7 @@
 # User Management API
 
+**Author:** Daniel Durant
+
 **[User Management API – Documentation](https://ddurant94.github.io/Coursera-User-Management-API/)**
 
 A RESTful CRUD API built with **ASP.NET Core (.NET 10)** for managing users within a company.  
